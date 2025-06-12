@@ -5,7 +5,8 @@ import face_recognition
 import numpy as np
 from time import sleep
 
-
+ # Note: Make sure to select the Desktop C++ package in the installer
+ #https://visualstudio.microsoft.com/downloads/
 def get_encoded_faces():
     """
     looks through the faces folder and encodes all
@@ -19,9 +20,13 @@ def get_encoded_faces():
         for f in fnames:
             if f.endswith(".jpg") or f.endswith(".png"):
                 face = fr.load_image_file("faces/" + f)
-                encoding = fr.face_encodings(face)[0]
-                encoded[f.split(".")[0]] = encoding
-                
+                encodings = fr.face_encodings(face)
+                if len(encodings) > 0:
+                    encoding = encodings[0]
+                    encoded[f.split(".")[0]] = encoding
+                else:
+                    print(f"No face found in {f}, skipping.")
+
 
     return encoded
 
@@ -31,9 +36,11 @@ def unknown_image_encoded(img):
     encode a face given the file name
     """
     face = fr.load_image_file("faces/" + img)
-    encoding = fr.face_encodings(face)[0]
-
-    return encoding
+    encodings = fr.face_encodings(face)
+    if len(encodings) > 0:
+        return encodings[0]
+    else:
+        raise ValueError(f"No face found in {img}")
 
 
 def classify_face(im):
@@ -84,9 +91,9 @@ def classify_face(im):
 
         cv2.imshow('Video', img)
         if cv2.waitKey(1) & 0xFF == ord('q'):
-            return face_names 
+            return face_names
 
 
-print(classify_face("test.jpg"))
+print(classify_face("test1.jpg"))
 
 
